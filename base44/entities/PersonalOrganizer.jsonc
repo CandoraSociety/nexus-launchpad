@@ -1,0 +1,84 @@
+{
+  "name": "PersonalOrganizer",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Email of the user this organizer belongs to"
+    },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "done": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Personal to-do tasks"
+    },
+    "focus_today": {
+      "type": "string",
+      "description": "What the user wants to focus on today"
+    },
+    "focus_date": {
+      "type": "string",
+      "description": "Date the focus was last set (YYYY-MM-DD)"
+    },
+    "reminders": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "nudge_count": {
+            "type": "number"
+          },
+          "last_nudged": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Recurring reminders / things they keep forgetting"
+    },
+    "thoughts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "tag": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Random thoughts and ideas"
+    }
+  },
+  "required": [
+    "user_email"
+  ]
+}

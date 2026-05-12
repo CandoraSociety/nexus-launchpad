@@ -8,6 +8,8 @@ import AppGrid from "../components/dashboard/AppGrid";
 import QuickActions from "../components/dashboard/QuickActions";
 import StatusBar from "../components/dashboard/StatusBar";
 import PinnedApps from "../components/dashboard/PinnedApps";
+import OrganizerPanel from "../components/organizer/OrganizerPanel";
+import HowToSearch from "../components/howto/HowToSearch";
 
 const AUTH_HIERARCHY = { executive: 4, admin: 3, manager: 2, standard: 1 };
 
@@ -97,6 +99,12 @@ export default function Dashboard() {
 
         {/* Pinned / Quick Access (optional add-on) */}
         <PinnedApps apps={accessibleApps} employee={employee} />
+
+        {/* Two-column widget row */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <OrganizerPanel user={user} />
+          <HowToSearch />
+        </div>
 
         {/* App grid */}
         <AppGrid apps={accessibleApps} employee={employee} />
