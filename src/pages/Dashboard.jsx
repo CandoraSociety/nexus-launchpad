@@ -7,6 +7,7 @@ import WelcomeHeader from "../components/dashboard/WelcomeHeader";
 import AppGrid from "../components/dashboard/AppGrid";
 import QuickActions from "../components/dashboard/QuickActions";
 import StatusBar from "../components/dashboard/StatusBar";
+import PinnedApps from "../components/dashboard/PinnedApps";
 
 const AUTH_HIERARCHY = { executive: 4, admin: 3, manager: 2, standard: 1 };
 
@@ -93,6 +94,9 @@ export default function Dashboard() {
 
         {/* Status bar */}
         <StatusBar employee={employee} />
+
+        {/* Pinned / Quick Access (optional add-on) */}
+        <PinnedApps apps={accessibleApps} employee={employee} />
 
         {/* App grid */}
         <AppGrid apps={accessibleApps} employee={employee} />
