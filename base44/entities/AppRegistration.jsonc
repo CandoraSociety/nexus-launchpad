@@ -1,0 +1,80 @@
+{
+  "name": "AppRegistration",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Display name of the app"
+    },
+    "app_id": {
+      "type": "string",
+      "description": "Unique identifier for the app"
+    },
+    "description": {
+      "type": "string",
+      "description": "Brief description of what the app does"
+    },
+    "url": {
+      "type": "string",
+      "description": "URL to launch the app"
+    },
+    "icon": {
+      "type": "string",
+      "description": "Lucide icon name for the app"
+    },
+    "color": {
+      "type": "string",
+      "enum": [
+        "blue",
+        "purple",
+        "green",
+        "orange",
+        "red",
+        "teal",
+        "pink",
+        "indigo"
+      ],
+      "description": "Theme color for the app card"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "core",
+        "hr",
+        "finance",
+        "operations",
+        "communications",
+        "analytics",
+        "tools"
+      ],
+      "description": "App category for grouping"
+    },
+    "min_authorization_level": {
+      "type": "string",
+      "enum": [
+        "executive",
+        "admin",
+        "manager",
+        "standard"
+      ],
+      "default": "standard",
+      "description": "Minimum authorization level required to see this app"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether the app is currently available"
+    },
+    "has_admin_mode": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this app has a separate admin mode"
+    }
+  },
+  "required": [
+    "name",
+    "app_id",
+    "url",
+    "category"
+  ]
+}

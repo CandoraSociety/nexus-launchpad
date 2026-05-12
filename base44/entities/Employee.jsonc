@@ -1,0 +1,89 @@
+{
+  "name": "Employee",
+  "type": "object",
+  "properties": {
+    "full_name": {
+      "type": "string",
+      "description": "Employee full name"
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "description": "Employee work email"
+    },
+    "job_title": {
+      "type": "string",
+      "description": "Job title or position"
+    },
+    "department": {
+      "type": "string",
+      "enum": [
+        "executive",
+        "engineering",
+        "sales",
+        "marketing",
+        "finance",
+        "hr",
+        "operations",
+        "support",
+        "legal",
+        "product"
+      ],
+      "description": "Department the employee belongs to"
+    },
+    "authorization_level": {
+      "type": "string",
+      "enum": [
+        "executive",
+        "admin",
+        "manager",
+        "standard"
+      ],
+      "default": "standard",
+      "description": "Authorization level determining app access"
+    },
+    "app_access": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of app IDs this employee can access"
+    },
+    "admin_apps": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of app IDs where this employee has admin access"
+    },
+    "avatar_url": {
+      "type": "string",
+      "description": "URL to employee avatar image"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "onboarding"
+      ],
+      "default": "active",
+      "description": "Current employee status"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Employment start date"
+    },
+    "user_account_email": {
+      "type": "string",
+      "description": "Email of the linked user account in the system"
+    }
+  },
+  "required": [
+    "full_name",
+    "email",
+    "department",
+    "authorization_level"
+  ]
+}
