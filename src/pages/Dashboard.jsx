@@ -11,7 +11,7 @@ import PinnedApps from "../components/dashboard/PinnedApps";
 import OrganizerPanel from "../components/organizer/OrganizerPanel";
 import HowToSearch from "../components/howto/HowToSearch";
 
-const AUTH_HIERARCHY = { executive: 4, admin: 3, manager: 2, standard: 1 };
+const HUB_URL = "https://beacon-92324875.base44.app/functions/getHubConfig";
 
 export default function Dashboard() {
   // Get current user
@@ -29,34 +29,20 @@ export default function Dashboard() {
 
   const employee = employees?.[0];
 
-  // Get all registered apps
-  const { data: allApps, isLoading: appsLoading } = useQuery({
-    queryKey: ["apps"],
-    queryFn: () => base44.entities.AppRegistration.filter({ is_active: true }),
-    initialData: [],
+  // Fetch hub config (apps + branding)
+  const { data: hubData, isLoading: hubLoading } = useQuery({
+    queryKey: ["hubConfig"],
+    queryFn: async () => {
+      const res = await fetch(HUB_URL);
+      return res.json();
+    },
+    initialData: { apps: [], config: { branding: {} } },
   });
 
-  // Filter apps based on employee's authorization level and explicit app_access
-  const accessibleApps = React.useMemo(() => {
-    if (!allApps) return [];
-    
-    const userLevel = employee?.authorization_level || "standard";
-    const userLevelNum = AUTH_HIERARCHY[userLevel] || 1;
-    const explicitAccess = new Set(employee?.app_access || []);
+  const allApps = (hubData?.apps || []).filter(a => a.is_active);
+  const branding = hubData?.config?.branding || {};
 
-    return allApps.filter(app => {
-      // Check minimum authorization level
-      const appMinLevel = AUTH_HIERARCHY[app.min_authorization_level] || 1;
-      const hasLevelAccess = userLevelNum >= appMinLevel;
-      
-      // Check explicit access list (if employee has app_access defined, also include those)
-      const hasExplicitAccess = explicitAccess.size === 0 || explicitAccess.has(app.app_id);
-      
-      return hasLevelAccess && hasExplicitAccess;
-    });
-  }, [allApps, employee]);
-
-  const isLoading = userLoading || empLoading || appsLoading;
+  const isLoading = userLoading || empLoading || hubLoading;
 
   if (isLoading) {
     return (
@@ -83,8 +69,15 @@ export default function Dashboard() {
         {/* Top bar with quick actions */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">N</span>
+            <div
+              className="w-9 h-9 rounded-lg flex items-center justify-center"
+              style={{ backgroundColor: branding.brand_primary_color || "#003DA5" }}
+            >
+              {branding.brand_logo_url ? (
+                <img src={branding.brand_logo_url} alt="Logo" className="w-6 h-6 object-contain" />
+              ) : (
+                <span className="text-white font-bold text-sm">N</span>
+              )}
             </div>
             <span className="font-semibold text-foreground text-lg tracking-tight">Nexus</span>
           </div>
@@ -98,7 +91,7 @@ export default function Dashboard() {
         <StatusBar employee={employee} />
 
         {/* Pinned / Quick Access (optional add-on) */}
-        <PinnedApps apps={accessibleApps} employee={employee} />
+        <PinnedApps apps={allApps} employee={employee} branding={branding} />
 
         {/* Two-column widget row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -107,7 +100,7 @@ export default function Dashboard() {
         </div>
 
         {/* App grid */}
-        <AppGrid apps={accessibleApps} employee={employee} />
+        <AppGrid apps={allApps} employee={employee} branding={branding} />
       </div>
     </div>
   );

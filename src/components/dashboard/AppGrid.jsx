@@ -4,7 +4,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Search, LayoutGrid } from "lucide-react";
 
-export default function AppGrid({ apps, employee }) {
+export default function AppGrid({ apps, employee, branding }) {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
 
@@ -14,8 +14,9 @@ export default function AppGrid({ apps, employee }) {
   const categories = ["all", ...new Set(apps.map(a => a.category).filter(Boolean))];
 
   const filtered = apps.filter(app => {
-    const matchSearch = !search || 
-      app.name?.toLowerCase().includes(search.toLowerCase()) ||
+    const name = app.app_name || app.name || "";
+    const matchSearch = !search ||
+      name.toLowerCase().includes(search.toLowerCase()) ||
       app.description?.toLowerCase().includes(search.toLowerCase());
     const matchCategory = activeCategory === "all" || app.category === activeCategory;
     return matchSearch && matchCategory;
@@ -67,6 +68,7 @@ export default function AppGrid({ apps, employee }) {
               app={app}
               isAdmin={adminAppIds.has(app.app_id)}
               index={index}
+              branding={branding}
             />
           ))}
         </div>

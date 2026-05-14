@@ -7,7 +7,7 @@ import AppCard from "./AppCard";
 
 const STORAGE_KEY = "nexus_pinned_apps";
 
-export default function PinnedApps({ apps, employee }) {
+export default function PinnedApps({ apps, employee, branding }) {
   const [pinnedIds, setPinnedIds] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -103,7 +103,7 @@ export default function PinnedApps({ apps, employee }) {
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 mb-4">
                 {pinnedApps.map((app, index) => (
                   <div key={app.id} className="relative group/pin">
-                    <AppCard app={app} isAdmin={adminAppIds.has(app.app_id)} index={index} compact />
+                    <AppCard app={app} isAdmin={adminAppIds.has(app.app_id)} index={index} branding={branding} compact />
                     {isEditing && (
                       <button
                         onClick={() => togglePin(app.app_id)}
@@ -130,7 +130,7 @@ export default function PinnedApps({ apps, employee }) {
                       className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border bg-card hover:border-primary/40 hover:bg-primary/5 transition-all text-sm font-medium text-foreground"
                     >
                       <Pin className="w-3 h-3 text-muted-foreground" />
-                      {app.name}
+                      {app.app_name || app.name}
                     </button>
                   ))}
                 </div>
