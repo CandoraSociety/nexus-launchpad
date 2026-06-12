@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Trash2, ChevronDown, ChevronUp, Flag, Calendar, CheckCircle2, Circle, LayoutGrid, List } from "lucide-react";
+import { Plus, Trash2, ChevronDown, ChevronUp, Flag, Calendar, CheckCircle2, Circle, LayoutGrid, List, Pencil, Check, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, differenceInDays, isPast, isValid, parseISO } from "date-fns";
 
@@ -84,6 +84,12 @@ function PriorityItem({ priority, onUpdate, onDelete, viewMode }) {
   const [expanded, setExpanded] = useState(false);
   const [addingTask, setAddingTask] = useState(false);
   const [newTask, setNewTask] = useState("");
+  const [editing, setEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState(priority.title);
+  const [editDate, setEditDate] = useState(priority.due_date || "");
+  const [editLevel, setEditLevel] = useState(priority.priority_level || "medium");
+  const [editingTaskId, setEditingTaskId] = useState(null);
+  const [editingTaskText, setEditingTaskText] = useState("");
   const levelInfo = PRIORITY_LEVELS.find(l => l.value === priority.priority_level) || PRIORITY_LEVELS[2];
 
   const toggleTask = (taskId) => onUpdate({ ...priority, tasks: (priority.tasks || []).map(t => t.id === taskId ? { ...t, done: !t.done } : t) });
@@ -91,6 +97,17 @@ function PriorityItem({ priority, onUpdate, onDelete, viewMode }) {
     if (!newTask.trim()) return;
     onUpdate({ ...priority, tasks: [...(priority.tasks || []), { id: nanoid(), text: newTask.trim(), done: false }] });
     setNewTask(""); setAddingTask(false);
+  };
+  const deleteTask = (taskId) => onUpdate({ ...priority, tasks: (priority.tasks || []).filter(t => t.id !== taskId) });
+  const saveTaskEdit = (taskId) => {
+    if (!editingTaskText.trim()) return;
+    onUpdate({ ...priority, tasks: (priority.tasks || []).map(t => t.id === taskId ? { ...t, text: editingTaskText.trim() } : t) });
+    setEditingTaskId(null);
+  };
+  const saveEdit = () => {
+    if (!editTitle.trim()) return;
+    onUpdate({ ...priority, title: editTitle.trim(), due_date: editDate || null, priority_level: editLevel });
+    setEditing(false);
   };
 
   const completedTasks = (priority.tasks || []).filter(t => t.done).length;
@@ -137,6 +154,7 @@ function PriorityItem({ priority, onUpdate, onDelete, viewMode }) {
           {priority.due_date && isValid(parseISO(priority.due_date)) && <span className="text-xs text-muted-foreground hidden sm:block">{format(parseISO(priority.due_date), "MMM d")}</span>}
           <DaysIndicator due_date={priority.due_date} />
           {totalTasks > 0 && <span className="text-xs text-muted-foreground">{completedTasks}/{totalTasks}</span>}
+          <button onClick={e => { e.stopPropagation(); setEditTitle(priority.title); setEditDate(priority.due_date || ""); setEditLevel(priority.priority_level || "medium"); setEditing(true); setExpanded(true); }} className="text-muted-foreground hover:text-primary p-0.5 rounded transition-colors"><Pencil className="w-3 h-3" /></button>
           {expanded ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground" /> : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />}
         </div>
       </div>
@@ -144,14 +162,44 @@ function PriorityItem({ priority, onUpdate, onDelete, viewMode }) {
         {expanded && (
           <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden">
             <div className="px-3 pb-3 border-t border-border space-y-2 pt-2">
-              <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                <span className={`font-medium ${levelInfo.color}`}>{levelInfo.label} priority</span>
-                {priority.due_date && isValid(parseISO(priority.due_date)) && <span>Due: {format(parseISO(priority.due_date), "MMMM d, yyyy")}</span>}
-              </div>
+              {editing ? (
+                <div className="space-y-2">
+                  <Input value={editTitle} onChange={e => setEditTitle(e.target.value)} className="text-sm h-8" autoFocus />
+                  <div className="grid grid-cols-2 gap-2">
+                    <Input type="date" value={editDate} onChange={e => setEditDate(e.target.value)} className="text-sm h-8" />
+                    <select value={editLevel} onChange={e => setEditLevel(e.target.value)} className="w-full h-8 text-sm rounded-md border border-input bg-background px-2">
+                      {PRIORITY_LEVELS.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}
+                    </select>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" onClick={saveEdit} disabled={!editTitle.trim()} className="h-7 px-2.5 text-xs"><Check className="w-3 h-3 mr-1" /> Save</Button>
+                    <Button size="sm" variant="ghost" onClick={() => setEditing(false)} className="h-7 px-2.5 text-xs"><X className="w-3 h-3 mr-1" /> Cancel</Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                  <span className={`font-medium ${levelInfo.color}`}>{levelInfo.label} priority</span>
+                  {priority.due_date && isValid(parseISO(priority.due_date)) && <span>Due: {format(parseISO(priority.due_date), "MMMM d, yyyy")}</span>}
+                </div>
+              )}
               {(priority.tasks || []).map(t => (
-                <div key={t.id} className="flex items-center gap-2 cursor-pointer" onClick={() => toggleTask(t.id)}>
-                  {t.done ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> : <Circle className="w-4 h-4 text-muted-foreground" />}
-                  <span className={`flex-1 text-sm ${t.done ? "line-through text-muted-foreground" : "text-foreground"}`}>{t.text}</span>
+                <div key={t.id} className="flex items-center gap-2 group/task">
+                  <div className="cursor-pointer" onClick={() => toggleTask(t.id)}>
+                    {t.done ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> : <Circle className="w-4 h-4 text-muted-foreground" />}
+                  </div>
+                  {editingTaskId === t.id ? (
+                    <>
+                      <Input value={editingTaskText} onChange={e => setEditingTaskText(e.target.value)} onKeyDown={e => { if (e.key === "Enter") saveTaskEdit(t.id); if (e.key === "Escape") setEditingTaskId(null); }} className="h-6 text-xs flex-1" autoFocus />
+                      <button onClick={() => saveTaskEdit(t.id)} className="text-primary hover:text-primary/80"><Check className="w-3.5 h-3.5" /></button>
+                      <button onClick={() => setEditingTaskId(null)} className="text-muted-foreground hover:text-foreground"><X className="w-3.5 h-3.5" /></button>
+                    </>
+                  ) : (
+                    <>
+                      <span className={`flex-1 text-sm ${t.done ? "line-through text-muted-foreground" : "text-foreground"}`}>{t.text}</span>
+                      <button onClick={() => { setEditingTaskId(t.id); setEditingTaskText(t.text); }} className="opacity-0 group-hover/task:opacity-100 text-muted-foreground hover:text-primary transition-opacity"><Pencil className="w-3 h-3" /></button>
+                      <button onClick={() => deleteTask(t.id)} className="opacity-0 group-hover/task:opacity-100 text-muted-foreground hover:text-destructive transition-opacity"><Trash2 className="w-3 h-3" /></button>
+                    </>
+                  )}
                 </div>
               ))}
               {addingTask ? (
