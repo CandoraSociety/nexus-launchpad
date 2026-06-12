@@ -362,27 +362,54 @@ function StepPlan({ rankedWithTasks, focusToday, onDone, onClose }) {
   const generate = async (detailed) => {
     setLoading(true);
     const prompt = detailed
-      ? `Create a detailed daily workflow plan with the following structure for each priority:
+      ? `Create a visually structured daily action plan.
 
-Focus: "${focusToday || "not set"}"
-Priorities and tasks: ${JSON.stringify(rankedWithTasks.map((p, i) => ({ rank: i + 1, title: p.title, level: p.priority_level, tasks: p.selected_tasks.map(t => t.text) })))}
+Daily Focus: "${focusToday || "not set"}"
+Priorities (in order): ${JSON.stringify(rankedWithTasks.map((p, i) => ({ rank: i + 1, title: p.title, level: p.priority_level, tasks: p.selected_tasks.map(t => t.text) })))}
 
-For EACH priority include:
-1. **Priority Title** (as header)
-2. **Workflow Steps** - numbered sequence of actions to complete this priority
-3. **Tasks** - list each task with ✓ checkbox format
-4. **Estimated Time** - realistic time estimate to complete this priority (e.g., "45-60 minutes")
-5. **Tips/Notes** - any helpful reminders or potential obstacles
+## Your Daily Workflow Map
 
-Format requirements:
-- Use ### for priority headers
-- Use **bold** for section labels (Workflow, Tasks, Estimated Time, Tips)
-- Use ✓ for task checkboxes (✓ task text on its own line)
+Start with a simple workflow overview showing the flow:
+**Priority 1 → Priority 2 → Priority 3** (use actual priority numbers)
+
+Total Estimated Time: [sum of all priorities]
+
+---
+
+Then for EACH priority, create a section with this exact structure:
+
+### ⚡ Priority #X: [Title]
+
+**🎯 Goal:** One sentence describing what success looks like
+
+**⏱️ Estimated Time:** [e.g., 45-60 minutes]
+
+**📋 Workflow Steps:**
+1. [First action step]
+2. [Second action step]
+3. [Third action step]
+
+**✓ Tasks to Complete:**
+- ✓ [Task 1]
+- ✓ [Task 2]
+- ✓ [Task 3]
+
+**💡 Pro Tips:**
+- [Tip 1: practical advice]
+- [Tip 2: common pitfall to avoid]
+
+---
+
+Formatting Rules:
+- Use ## for main headers, ### for priority headers
+- Use **bold** for all labels (Goal, Estimated Time, Workflow Steps, Tasks, Pro Tips)
+- Use emoji icons: ⚡ for priorities, 🎯 for goal, ⏱️ for time, 📋 for workflow, ✓ for tasks, 💡 for tips
 - Use numbered lists (1. 2. 3.) for workflow steps
-- Use bullet points (-) for tips
-- Leave blank lines between sections
+- Use dash bullets (-) for tasks and tips
+- Include horizontal rules (---) between priority sections
+- Keep language encouraging, clear, and actionable
 
-Keep it encouraging, practical, and actionable.`
+End with a brief motivational closing statement.`
       : `Compile an organized summary of what needs to be accomplished today.
 Priorities and tasks: ${JSON.stringify(rankedWithTasks.map((p, i) => ({ rank: i + 1, title: p.title, level: p.priority_level, tasks: p.selected_tasks.map(t => t.text) })))}
 Keep it brief, clear and actionable.`;

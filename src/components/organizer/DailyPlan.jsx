@@ -3,9 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
+import ReactMarkdown from "react-markdown";
 import {
   CheckCircle2, Circle, AlertTriangle, Sparkles, ChevronDown, ChevronUp,
-  X, Loader2, Flag, Brain, RefreshCw, Wand2, Clock, Target, Zap
+  X, Loader2, Flag, Brain, RefreshCw, Wand2, Clock, Target, Zap, Map, Calendar, Timer
 } from "lucide-react";
 
 const LEVEL_COLOR = { critical: "text-red-500", high: "text-orange-500", medium: "text-yellow-500", low: "text-green-500" };
@@ -280,9 +281,48 @@ export default function DailyPlan({ plan, onUpdate, onDismiss }) {
                 exit={{ opacity: 0, height: 0 }}
                 className="px-5 pb-4 pt-3"
               >
-                <div className="rounded-2xl bg-gradient-to-br from-violet-50 via-purple-50 to-pink-50 dark:from-violet-950/30 dark:via-purple-950/30 dark:to-pink-950/30 border border-violet-200 dark:border-violet-800 p-5 max-h-[500px] overflow-y-auto shadow-lg">
-                  <div className="text-sm text-foreground whitespace-pre-wrap leading-relaxed space-y-3">
-                    {plan.ai_plan}
+                <div className="rounded-2xl bg-gradient-to-br from-violet-50 via-purple-50 to-pink-50 dark:from-violet-950/30 dark:via-purple-950/30 dark:to-pink-950/30 border border-violet-200 dark:border-violet-800 p-5 max-h-[600px] overflow-y-auto shadow-lg">
+                  {/* Plan Stats */}
+                  <div className="grid grid-cols-3 gap-3 mb-4">
+                    <div className="rounded-xl bg-white/70 dark:bg-slate-800/70 border border-violet-200 dark:border-violet-800 p-3 text-center">
+                      <div className="flex items-center justify-center gap-1.5 mb-1">
+                        <Map className="w-3.5 h-3.5 text-violet-500" />
+                        <span className="text-xs font-semibold text-muted-foreground">Priorities</span>
+                      </div>
+                      <p className="text-lg font-bold text-foreground">{plan.priorities.length}</p>
+                    </div>
+                    <div className="rounded-xl bg-white/70 dark:bg-slate-800/70 border border-violet-200 dark:border-violet-800 p-3 text-center">
+                      <div className="flex items-center justify-center gap-1.5 mb-1">
+                        <Calendar className="w-3.5 h-3.5 text-purple-500" />
+                        <span className="text-xs font-semibold text-muted-foreground">Tasks</span>
+                      </div>
+                      <p className="text-lg font-bold text-foreground">{totalTasks}</p>
+                    </div>
+                    <div className="rounded-xl bg-white/70 dark:bg-slate-800/70 border border-violet-200 dark:border-violet-800 p-3 text-center">
+                      <div className="flex items-center justify-center gap-1.5 mb-1">
+                        <Timer className="w-3.5 h-3.5 text-pink-500" />
+                        <span className="text-xs font-semibold text-muted-foreground">Complete</span>
+                      </div>
+                      <p className="text-lg font-bold text-emerald-600">{progress}%</p>
+                    </div>
+                  </div>
+                  {/* AI Plan Content */}
+                  <div className="rounded-xl bg-white/80 dark:bg-slate-800/80 border border-border p-4 prose prose-sm dark:prose-invert max-w-none">
+                    <ReactMarkdown
+                      components={{
+                        h1: ({node, ...props}) => <h1 className="text-lg font-bold text-foreground mb-2 pb-2 border-b border-violet-200" {...props} />,
+                        h2: ({node, ...props}) => <h2 className="text-base font-bold text-foreground mb-2 pb-1 border-b border-violet-100" {...props} />,
+                        h3: ({node, ...props}) => <h3 className="text-sm font-semibold text-violet-700 dark:text-violet-400 mb-1.5 mt-3" {...props} />,
+                        p: ({node, ...props}) => <p className="text-sm text-foreground mb-2 leading-relaxed" {...props} />,
+                        ul: ({node, ...props}) => <ul className="list-disc list-inside space-y-1 mb-3 ml-2" {...props} />,
+                        ol: ({node, ...props}) => <ol className="list-decimal list-inside space-y-1 mb-3 ml-2" {...props} />,
+                        li: ({node, ...props}) => <li className="text-sm text-foreground" {...props} />,
+                        strong: ({node, ...props}) => <strong className="font-bold text-foreground" {...props} />,
+                        em: ({node, ...props}) => <em className="text-muted-foreground italic" {...props} />,
+                      }}
+                    >
+                      {plan.ai_plan}
+                    </ReactMarkdown>
                   </div>
                 </div>
               </motion.div>
