@@ -362,18 +362,27 @@ function StepPlan({ rankedWithTasks, focusToday, onDone, onClose }) {
   const generate = async (detailed) => {
     setLoading(true);
     const prompt = detailed
-      ? `Create a detailed, step-by-step daily plan. Break tasks into small manageable steps. Keep it encouraging and clear. 
+      ? `Create a detailed daily workflow plan with the following structure for each priority:
+
 Focus: "${focusToday || "not set"}"
 Priorities and tasks: ${JSON.stringify(rankedWithTasks.map((p, i) => ({ rank: i + 1, title: p.title, level: p.priority_level, tasks: p.selected_tasks.map(t => t.text) })))}
 
-Format the plan using:
-- ### headers for each priority section
-- **bold** for key actions and important notes  
-- ✓ checkboxes for individual tasks (use: ✓ task text on its own line)
-- Bullet points (- item) for supporting details
-- Clear spacing between sections with blank lines
+For EACH priority include:
+1. **Priority Title** (as header)
+2. **Workflow Steps** - numbered sequence of actions to complete this priority
+3. **Tasks** - list each task with ✓ checkbox format
+4. **Estimated Time** - realistic time estimate to complete this priority (e.g., "45-60 minutes")
+5. **Tips/Notes** - any helpful reminders or potential obstacles
 
-Return a structured plan with sections per priority, sub-steps, and brief motivational notes.`
+Format requirements:
+- Use ### for priority headers
+- Use **bold** for section labels (Workflow, Tasks, Estimated Time, Tips)
+- Use ✓ for task checkboxes (✓ task text on its own line)
+- Use numbered lists (1. 2. 3.) for workflow steps
+- Use bullet points (-) for tips
+- Leave blank lines between sections
+
+Keep it encouraging, practical, and actionable.`
       : `Compile an organized summary of what needs to be accomplished today.
 Priorities and tasks: ${JSON.stringify(rankedWithTasks.map((p, i) => ({ rank: i + 1, title: p.title, level: p.priority_level, tasks: p.selected_tasks.map(t => t.text) })))}
 Keep it brief, clear and actionable.`;

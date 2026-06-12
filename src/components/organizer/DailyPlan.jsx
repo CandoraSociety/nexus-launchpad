@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import {
-  CheckCircle2, Circle, AlertTriangle, Sparkles,
+  CheckCircle2, Circle, AlertTriangle, Sparkles, ChevronDown, ChevronUp,
   X, Loader2, Flag, Brain, RefreshCw
 } from "lucide-react";
 
@@ -178,6 +178,25 @@ export default function DailyPlan({ plan, onUpdate, onDismiss }) {
             />
           </div>
         </div>
+
+        {/* AI Plan */}
+        {plan.ai_plan && (
+          <div className="px-5 py-3 border-b border-border">
+            <button
+              onClick={() => setShowAiPlan(v => !v)}
+              className="flex items-center gap-1.5 text-xs text-primary hover:underline"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              {plan.detailed ? "View detailed plan" : "View summary"}
+              {showAiPlan ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+            </button>
+            {showAiPlan && (
+              <div className="mt-3 rounded-lg bg-muted/40 p-4 max-h-96 overflow-y-auto">
+                <div className="text-xs text-foreground whitespace-pre-wrap leading-relaxed">{plan.ai_plan}</div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Priorities & Tasks */}
         <div className="px-5 py-4 space-y-4">
