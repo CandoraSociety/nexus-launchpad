@@ -121,7 +121,7 @@ export default function OrganizerPanel({ user }) {
                 <PrioritiesTab priorities={priorities} onChange={(p) => save({ priorities: p })} />
               </TabsContent>
               <TabsContent value="tasks">
-                <TasksTab tasks={tasks} onChange={(t) => save({ tasks: t })} />
+                <TasksTab tasks={tasks} onChange={(t) => save({ tasks: t })} priorities={priorities} onPrioritiesChange={(p) => save({ priorities: p })} />
               </TabsContent>
               <TabsContent value="focus">
                 <FocusTab

@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Trash2, CheckCircle2, Circle } from "lucide-react";
+import { Plus, Trash2, CheckCircle2, Circle, Flag } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { nanoid } from "https://esm.sh/nanoid@5.0.7";
 
-export default function TasksTab({ tasks = [], onChange }) {
+export default function TasksTab({ tasks = [], onChange, priorities = [], onPrioritiesChange }) {
   const [input, setInput] = useState("");
 
   const addTask = () => {
@@ -84,6 +84,31 @@ export default function TasksTab({ tasks = [], onChange }) {
 
       {pending.length > 0 && (
         <p className="text-xs text-muted-foreground">{pending.length} task{pending.length !== 1 ? "s" : ""} remaining</p>
+      )}
+
+      {priorities.filter(p => (p.tasks || []).length > 0).length > 0 && (
+        <div className="space-y-3 pt-2 border-t border-border">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">From Priorities</p>
+          {priorities.filter(p => (p.tasks || []).length > 0).map(p => (
+            <div key={p.id} className="space-y-1.5">
+              <div className="flex items-center gap-1.5 text-xs font-medium text-foreground">
+                <Flag className="w-3 h-3 text-primary" />
+                <span>{p.title}</span>
+              </div>
+              {(p.tasks || []).map(t => (
+                <div key={t.id} className="flex items-center gap-2 pl-4 group">
+                  <button
+                    onClick={() => onPrioritiesChange(priorities.map(pr => pr.id === p.id ? { ...pr, tasks: pr.tasks.map(tk => tk.id === t.id ? { ...tk, done: !tk.done } : tk) } : pr))}
+                    className={t.done ? "text-emerald-500" : "text-muted-foreground hover:text-primary transition-colors"}
+                  >
+                    {t.done ? <CheckCircle2 className="w-4 h-4" /> : <Circle className="w-4 h-4" />}
+                  </button>
+                  <span className={`flex-1 text-sm ${t.done ? "line-through text-muted-foreground" : "text-foreground"}`}>{t.text}</span>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );
