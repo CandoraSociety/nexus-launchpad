@@ -184,7 +184,7 @@ export default function DailyPlan({ plan, onUpdate, onDismiss }) {
           <div className="px-5 py-3 border-b border-border">
             <button
               onClick={() => setShowAiPlan(v => !v)}
-              className="flex items-center gap-1.5 text-xs text-primary hover:underline font-medium"
+              className="flex items-center gap-1.5 text-xs text-primary hover:underline"
             >
               <Sparkles className="w-3.5 h-3.5" />
               {plan.detailed ? "View detailed plan" : "View compiled summary"}
@@ -193,23 +193,8 @@ export default function DailyPlan({ plan, onUpdate, onDismiss }) {
             <AnimatePresence>
               {showAiPlan && (
                 <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden">
-                  <div className="mt-3 rounded-xl bg-gradient-to-br from-primary/5 to-accent/5 border border-primary/10 p-5">
-                    <div className="space-y-4">
-                      <div 
-                        className="text-sm text-foreground leading-relaxed"
-                        dangerouslySetInnerHTML={{ 
-                          __html: plan.ai_plan
-                            .replace(/^### (.*$)/gim, '<h3 class="text-base font-bold text-primary mt-4 mb-2 first:mt-0">$1</h3>')
-                            .replace(/^## (.*$)/gim, '<h2 class="text-lg font-bold text-foreground mt-5 mb-3 first:mt-0">$1</h2>')
-                            .replace(/^# (.*$)/gim, '<h1 class="text-xl font-bold text-foreground mt-6 mb-4 first:mt-0">$1</h1>')
-                            .replace(/^\*\*(.*)\*\*/gim, '<strong class="font-semibold text-foreground">$1</strong>')
-                            .replace(/^- (.*$)/gim, '<div class="flex items-start gap-2 ml-2 mb-2"><span class="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0"></span><span class="text-sm text-foreground">$1</span></div>')
-                            .replace(/^\d+\. (.*$)/gim, '<div class="flex items-start gap-2 ml-2 mb-2"><span class="w-4 h-4 rounded border border-primary/30 flex items-center justify-center text-[10px] font-bold text-primary shrink-0">$&</span><span class="text-sm text-foreground">$1</span></div>')
-                            .replace(/^[✓✔☑]\s*(.*$)/gim, '<div class="flex items-center gap-2 ml-2 mb-2"><span class="w-4 h-4 rounded bg-primary flex items-center justify-center shrink-0"><svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></span><span class="text-sm text-foreground">$1</span></div>')
-                            .replace(/\n\n/g, '<br/><br/>')
-                        }} 
-                      />
-                    </div>
+                  <div className="mt-3 rounded-lg bg-muted/40 p-4">
+                    <pre className="text-xs text-foreground whitespace-pre-wrap leading-relaxed font-sans">{plan.ai_plan}</pre>
                   </div>
                 </motion.div>
               )}
