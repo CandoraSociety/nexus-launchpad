@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import {
   CheckCircle2, Circle, AlertTriangle, Sparkles, ChevronDown, ChevronUp,
-  X, Loader2, Flag, Brain, RefreshCw
+  X, Loader2, Flag, Brain, RefreshCw, Wand2, Clock, Target, Zap
 } from "lucide-react";
 
 const LEVEL_COLOR = { critical: "text-red-500", high: "text-orange-500", medium: "text-yellow-500", low: "text-green-500" };
@@ -20,6 +20,72 @@ const CHALLENGE_OPTIONS = [
   "I feel anxious about this",
   "I'm low energy right now",
 ];
+
+function AiHelpDialog({ taskLabel, onResolve, onClose }) {
+  const [loading, setLoading] = useState(false);
+  const [guidance, setGuidance] = useState(null);
+
+  const ask = async () => {
+    setLoading(true);
+    const result = await base44.integrations.Core.InvokeLLM({
+      prompt: `Help a user complete this specific task: "${taskLabel}"
+
+Provide a clear, step-by-step breakdown:
+1. Break it into 3-5 tiny actionable steps
+2. Give a time estimate for each step
+3. Mention any common pitfalls to avoid
+4. End with encouragement
+
+Keep it practical and concise.`
+    });
+    setGuidance(result);
+    setLoading(false);
+  };
+
+  React.useEffect(() => { ask(); }, []);
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+      <motion.div initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }}
+        className="bg-gradient-to-br from-violet-50 via-purple-50 to-pink-50 dark:from-slate-900 dark:to-slate-800 rounded-2xl border border-violet-200 dark:border-violet-800 shadow-xl max-w-md w-full p-5 space-y-4 max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 via-purple-500 to-pink-500 flex items-center justify-center">
+              <Wand2 className="w-4 h-4 text-white" />
+            </div>
+            <span className="text-sm font-semibold text-foreground">AI Task Assistant</span>
+          </div>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground"><X className="w-4 h-4" /></button>
+        </div>
+
+        <p className="text-xs text-muted-foreground italic bg-card/50 rounded-lg p-2">"{taskLabel}"</p>
+
+        {loading ? (
+          <div className="flex items-center gap-2 py-6 justify-center">
+            <Loader2 className="w-5 h-5 animate-spin text-violet-500" />
+            <span className="text-sm text-muted-foreground">Generating your action plan…</span>
+          </div>
+        ) : guidance ? (
+          <>
+            <div className="rounded-xl bg-card/70 border border-border p-4">
+              <div className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">{guidance}</div>
+            </div>
+            <div className="flex gap-2">
+              <Button size="sm" onClick={() => { setGuidance(null); setLoading(true); ask(); }}>
+                <RefreshCw className="w-3.5 h-3.5 mr-1" /> Regenerate
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => { onResolve(); onClose(); }}>
+                <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> Got it!
+              </Button>
+              <Button size="sm" variant="ghost" onClick={onClose}>Close</Button>
+            </div>
+          </>
+        ) : null}
+      </motion.div>
+    </motion.div>
+  );
+}
 
 function StruggleDialog({ label, onResolve, onClose }) {
   const [selected, setSelected] = useState(new Set());
@@ -38,10 +104,10 @@ function StruggleDialog({ label, onResolve, onClose }) {
     if (!challenges.length) return;
     setLoading(true);
     const result = await base44.integrations.Core.InvokeLLM({
-    prompt: `A user is struggling with: "${label}"
-    Their challenges: ${challenges.join(", ")}
+      prompt: `A user is struggling with: "${label}"
+Their challenges: ${challenges.join(", ")}
 
-    Give 3-4 specific, practical, encouraging tips to help them get unstuck. Keep each tip to 1-2 sentences. Be warm and supportive — not clinical.`
+Give 3-4 specific, practical, encouraging tips to help them get unstuck. Keep each tip to 1-2 sentences. Be warm and supportive — not clinical.`
     });
     setTips(result);
     setLoading(false);
@@ -107,6 +173,7 @@ function StruggleDialog({ label, onResolve, onClose }) {
 export default function DailyPlan({ plan, onUpdate, onDismiss }) {
   const [showAiPlan, setShowAiPlan] = useState(false);
   const [struggleTarget, setStruggleTarget] = useState(null); // { label, priorityId, taskId? }
+  const [aiHelpTarget, setAiHelpTarget] = useState(null); // { label, priorityId, taskId }
 
   if (!plan) return null;
 
@@ -142,6 +209,13 @@ export default function DailyPlan({ plan, onUpdate, onDismiss }) {
               else togglePriorityDone(struggleTarget.priorityId);
             }}
             onClose={() => setStruggleTarget(null)}
+          />
+        )}
+        {aiHelpTarget && (
+          <AiHelpDialog
+            taskLabel={aiHelpTarget.label}
+            onResolve={() => toggleTaskDone(aiHelpTarget.priorityId, aiHelpTarget.taskId)}
+            onClose={() => setAiHelpTarget(null)}
           />
         )}
       </AnimatePresence>
@@ -184,15 +258,17 @@ export default function DailyPlan({ plan, onUpdate, onDismiss }) {
           <div className="border-b border-border">
             <button
               onClick={() => setShowAiPlan(v => !v)}
-              className="w-full flex items-center justify-between px-5 py-3 bg-gradient-to-r from-primary/5 to-accent/5 hover:from-primary/10 hover:to-accent/10 transition-colors"
+              className="w-full flex items-center justify-between px-5 py-4 bg-gradient-to-r from-violet-500/10 via-purple-500/10 to-pink-500/10 hover:from-violet-500/15 hover:via-purple-500/15 hover:to-pink-500/15 transition-all border-b border-border"
             >
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center">
-                  <Sparkles className="w-3.5 h-3.5 text-primary" />
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 via-purple-500 to-pink-500 flex items-center justify-center shrink-0 shadow-lg shadow-violet-500/25">
+                  <Sparkles className="w-4 h-4 text-white" />
                 </div>
                 <div className="text-left">
-                  <p className="text-sm font-semibold text-foreground">{plan.detailed ? "Detailed Plan" : "Plan Summary"}</p>
-                  <p className="text-xs text-muted-foreground">AI-generated workflow with time estimates</p>
+                  <p className="text-sm font-bold text-foreground">{plan.detailed ? "Detailed Action Plan" : "Plan Summary"}</p>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <Zap className="w-3 h-3" /> AI-powered workflow with time estimates
+                  </p>
                 </div>
               </div>
               {showAiPlan ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
@@ -202,9 +278,9 @@ export default function DailyPlan({ plan, onUpdate, onDismiss }) {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
-                className="px-5 pb-4"
+                className="px-5 pb-4 pt-3"
               >
-                <div className="rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 border border-border p-5 max-h-[500px] overflow-y-auto shadow-inner">
+                <div className="rounded-2xl bg-gradient-to-br from-violet-50 via-purple-50 to-pink-50 dark:from-violet-950/30 dark:via-purple-950/30 dark:to-pink-950/30 border border-violet-200 dark:border-violet-800 p-5 max-h-[500px] overflow-y-auto shadow-lg">
                   <div className="text-sm text-foreground whitespace-pre-wrap leading-relaxed space-y-3">
                     {plan.ai_plan}
                   </div>
@@ -217,43 +293,46 @@ export default function DailyPlan({ plan, onUpdate, onDismiss }) {
         {/* Priorities & Tasks */}
         <div className="px-5 py-4 space-y-4">
           {plan.priorities.map((p, idx) => (
-            <div key={p.id} className={`space-y-2 ${p.done ? "opacity-60" : ""}`}>
+            <div key={p.id} className={`rounded-xl border ${p.done ? "bg-muted/30 border-border opacity-70" : "bg-card border-border shadow-sm"} p-3 transition-all`}>
               {/* Priority row */}
-              <div className="flex items-center gap-2 group/p">
+              <div className="flex items-center gap-3 mb-2">
                 <button onClick={() => togglePriorityDone(p.id)} className="shrink-0">
                   {p.done
-                    ? <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                    : <Circle className="w-5 h-5 text-muted-foreground hover:text-primary transition-colors" />}
+                    ? <CheckCircle2 className="w-6 h-6 text-emerald-500" />
+                    : <Circle className="w-6 h-6 text-muted-foreground hover:text-primary transition-colors" />}
                 </button>
-                <span className="text-xs font-bold text-muted-foreground shrink-0">{idx + 1}.</span>
-                <Flag className={`w-3.5 h-3.5 shrink-0 ${LEVEL_COLOR[p.priority_level] || ""}`} />
-                <span className={`flex-1 text-sm font-semibold ${p.done ? "line-through text-muted-foreground" : "text-foreground"}`}>{p.title}</span>
+                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700 flex items-center justify-center shrink-0">
+                  <span className="text-xs font-bold text-muted-foreground">{idx + 1}</span>
+                </div>
+                <Flag className={`w-4 h-4 shrink-0 ${LEVEL_COLOR[p.priority_level] || ""}`} />
+                <span className={`flex-1 text-sm font-bold ${p.done ? "line-through text-muted-foreground" : "text-foreground"}`}>{p.title}</span>
                 <button
                   onClick={() => setStruggleTarget({ label: p.title, priorityId: p.id })}
                   className="opacity-0 group-hover/p:opacity-100 transition-opacity text-muted-foreground hover:text-orange-500"
-                  title="Having trouble with this?"
+                  title="Having trouble with this priority?"
                 >
-                  <AlertTriangle className="w-3.5 h-3.5" />
+                  <AlertTriangle className="w-4 h-4" />
                 </button>
               </div>
 
               {/* Tasks */}
               {p.tasks.length > 0 && (
-                <div className="pl-9 space-y-1.5">
-                  {p.tasks.map(t => (
-                    <div key={t.id} className="flex items-center gap-2 group/t">
+                <div className="pl-16 space-y-1.5">
+                  {p.tasks.map((t, tIdx) => (
+                    <div key={t.id} className="flex items-center gap-2 group/t p-1.5 rounded-lg hover:bg-muted/30 transition-colors">
                       <button onClick={() => toggleTaskDone(p.id, t.id)} className="shrink-0">
                         {t.done
-                          ? <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                          : <Circle className="w-4 h-4 text-muted-foreground hover:text-primary transition-colors" />}
+                          ? <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                          : <Circle className="w-5 h-5 text-muted-foreground hover:text-primary transition-colors" />}
                       </button>
                       <span className={`flex-1 text-sm ${t.done ? "line-through text-muted-foreground" : "text-foreground"}`}>{t.text}</span>
                       <button
-                        onClick={() => setStruggleTarget({ label: t.text, priorityId: p.id, taskId: t.id })}
-                        className="opacity-0 group-hover/t:opacity-100 transition-opacity text-muted-foreground hover:text-orange-500"
-                        title="Having trouble with this?"
+                        onClick={() => setAiHelpTarget({ label: t.text, priorityId: p.id, taskId: t.id })}
+                        className="opacity-0 group-hover/t:opacity-100 transition-opacity flex items-center gap-1 px-2 py-1 rounded-md bg-gradient-to-r from-violet-500/10 to-purple-500/10 hover:from-violet-500/20 hover:to-purple-500/20 border border-violet-200 dark:border-violet-800"
+                        title="Get AI help with this task"
                       >
-                        <AlertTriangle className="w-3 h-3" />
+                        <Wand2 className="w-3.5 h-3.5 text-violet-500" />
+                        <span className="text-xs font-medium text-violet-600 dark:text-violet-400">AI Help</span>
                       </button>
                     </div>
                   ))}
