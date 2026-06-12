@@ -93,11 +93,11 @@ export default function Dashboard() {
         {/* Pinned / Quick Access (optional add-on) */}
         <PinnedApps apps={allApps} employee={employee} branding={branding} />
 
-        {/* Two-column widget row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-          <OrganizerPanel user={user} />
-          <HowToSearch />
-        </div>
+        {/* Organizer Panel (full width, DailyPlan flows naturally) */}
+        <OrganizerPanel user={user} />
+
+        {/* HowTo Search (full width below Organizer) */}
+        <HowToSearch />
 
         {/* App grid */}
         <AppGrid apps={allApps} employee={employee} branding={branding} />
