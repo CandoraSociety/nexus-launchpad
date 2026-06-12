@@ -93,11 +93,15 @@ export default function Dashboard() {
         {/* Pinned / Quick Access (optional add-on) */}
         <PinnedApps apps={allApps} employee={employee} branding={branding} />
 
-        {/* Organizer Panel (full width, DailyPlan flows naturally) */}
-        <OrganizerPanel user={user} />
-
-        {/* HowTo Search (full width below Organizer) */}
-        <HowToSearch />
+        {/* Masonry-style layout - cards flow naturally */}
+        <div className="columns-1 lg:columns-2 gap-6 space-y-6">
+          <div className="break-inside-avoid">
+            <OrganizerPanel user={user} />
+          </div>
+          <div className="break-inside-avoid">
+            <HowToSearch />
+          </div>
+        </div>
 
         {/* App grid */}
         <AppGrid apps={allApps} employee={employee} branding={branding} />
