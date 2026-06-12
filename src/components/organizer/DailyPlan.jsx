@@ -6,7 +6,7 @@ import { base44 } from "@/api/base44Client";
 import ReactMarkdown from "react-markdown";
 import {
   CheckCircle2, Circle, AlertTriangle, Sparkles, ChevronDown, ChevronUp,
-  X, Loader2, Flag, Brain, RefreshCw, Wand2, Clock, Target, Zap, Map, Calendar, Timer
+  X, Loader2, Flag, Brain, RefreshCw, Wand2, Clock, Target, Zap, Map, Calendar, Timer, ArrowRight
 } from "lucide-react";
 
 const LEVEL_COLOR = { critical: "text-red-500", high: "text-orange-500", medium: "text-yellow-500", low: "text-green-500" };
@@ -306,6 +306,34 @@ export default function DailyPlan({ plan, onUpdate, onDismiss }) {
                       <p className="text-lg font-bold text-emerald-600">{progress}%</p>
                     </div>
                   </div>
+
+                  {/* Visual Workflow Map */}
+                  <div className="mb-5">
+                    <h4 className="text-xs font-bold text-foreground mb-3 flex items-center gap-2">
+                      <Map className="w-3.5 h-3.5 text-violet-500" />
+                      Your Workflow Map
+                    </h4>
+                    <div className="flex items-center gap-2 overflow-x-auto pb-2">
+                      {plan.priorities.map((p, idx) => (
+                        <React.Fragment key={p.id}>
+                          <div className={`shrink-0 rounded-xl border-2 ${p.done ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30" : "border-violet-300 dark:border-violet-700 bg-white dark:bg-slate-800"} p-3 min-w-[140px]`}>
+                            <div className="flex items-center gap-2 mb-1">
+                              <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold">
+                                {idx + 1}
+                              </div>
+                              <Flag className={`w-3.5 h-3.5 ${LEVEL_COLOR[p.priority_level]}`} />
+                            </div>
+                            <p className="text-xs font-semibold text-foreground line-clamp-2">{p.title}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{p.tasks.filter(t => t.done).length}/{p.tasks.length} tasks</p>
+                          </div>
+                          {idx < plan.priorities.length - 1 && (
+                            <ArrowRight className="w-4 h-4 text-muted-foreground shrink-0" />
+                          )}
+                        </React.Fragment>
+                      ))}
+                    </div>
+                  </div>
+
                   {/* AI Plan Content */}
                   <div className="rounded-xl bg-white/80 dark:bg-slate-800/80 border border-border p-4 prose prose-sm dark:prose-invert max-w-none">
                     <ReactMarkdown
@@ -368,7 +396,7 @@ export default function DailyPlan({ plan, onUpdate, onDismiss }) {
                       <span className={`flex-1 text-sm ${t.done ? "line-through text-muted-foreground" : "text-foreground"}`}>{t.text}</span>
                       <button
                         onClick={() => setAiHelpTarget({ label: t.text, priorityId: p.id, taskId: t.id })}
-                        className="opacity-0 group-hover/t:opacity-100 transition-opacity flex items-center gap-1 px-2 py-1 rounded-md bg-gradient-to-r from-violet-500/10 to-purple-500/10 hover:from-violet-500/20 hover:to-purple-500/20 border border-violet-200 dark:border-violet-800"
+                        className="flex items-center gap-1 px-2 py-1 rounded-md bg-gradient-to-r from-violet-500/10 to-purple-500/10 hover:from-violet-500/20 hover:to-purple-500/20 border border-violet-200 dark:border-violet-800 transition-all"
                         title="Get AI help with this task"
                       >
                         <Wand2 className="w-3.5 h-3.5 text-violet-500" />
