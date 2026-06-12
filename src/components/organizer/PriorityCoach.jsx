@@ -368,10 +368,10 @@ Priorities and tasks: ${JSON.stringify(rankedWithTasks.map((p, i) => ({ rank: i 
 
 Format the plan using:
 - ### headers for each priority section
-- **bold** for key actions and important notes
-- ✓ checkboxes for individual tasks (use: ✓ task text)
-- Bullet points or numbered lists for steps
-- Clear spacing between sections
+- **bold** for key actions and important notes  
+- ✓ checkboxes for individual tasks (use: ✓ task text on its own line)
+- Bullet points (- item) for supporting details
+- Clear spacing between sections with blank lines
 
 Return a structured plan with sections per priority, sub-steps, and brief motivational notes.`
       : `Compile an organized summary of what needs to be accomplished today.
