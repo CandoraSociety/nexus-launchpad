@@ -75,7 +75,72 @@
           }
         }
       },
-      "description": "Random thoughts and ideas"
+      "description": "Random thoughts and ideas (legacy)"
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "raw_entry": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "formatted": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Brain dump notes, AI-organized with subject headings"
+    },
+    "priorities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "due_date": {
+            "type": "string"
+          },
+          "priority_level": {
+            "type": "string"
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "text": {
+                  "type": "string"
+                },
+                "done": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "created_at": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Priority catalogue with due dates and sub-tasks"
     }
   },
   "required": [
