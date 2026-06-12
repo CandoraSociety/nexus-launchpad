@@ -396,6 +396,12 @@ Keep it brief, clear and actionable.`;
     onDone(plan);
   };
 
+  useEffect(() => {
+    if (wantPlan !== null && !loading) {
+      generate(wantPlan);
+    }
+  }, [wantPlan, loading, generate, rankedWithTasks, focusToday, onDone]);
+
   if (wantPlan === null) {
     return (
       <div className="space-y-4">
@@ -414,7 +420,6 @@ Keep it brief, clear and actionable.`;
     <div className="flex items-center gap-2 py-6 justify-center text-muted-foreground">
       <Loader2 className="w-4 h-4 animate-spin" />
       <span className="text-sm">{wantPlan ? "Building your plan…" : "Compiling…"}</span>
-      {!loading && generate(wantPlan)}
     </div>
   );
 }
