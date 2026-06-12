@@ -39,7 +39,7 @@ function StepRecommend({ priorities, focusToday, onNext, onClose }) {
       incomplete_tasks: (p.tasks || []).filter(t => !t.done).length
     }));
     const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are helping an ADHD user plan their day. 
+      prompt: `You are helping a user plan their day. 
 Daily focus: "${focusToday || "not set"}".
 Priorities: ${JSON.stringify(context)}
 
@@ -160,7 +160,7 @@ function StepRank({ selected, onNext, onClose }) {
   const doAiRank = async () => {
     setLoading(true);
     const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `Rank these priorities by importance and urgency for an ADHD user. Return the ids in order from most to least important.
+      prompt: `Rank these priorities by importance and urgency. Return the ids in order from most to least important.
 Priorities: ${JSON.stringify(selected.map(p => ({ id: p.id, title: p.title, priority_level: p.priority_level, days_left: getDaysLeft(p.due_date), incomplete_tasks: (p.tasks||[]).filter(t=>!t.done).length })))}`,
       response_json_schema: { type: "object", properties: { ranked_ids: { type: "array", items: { type: "string" } } } }
     });
@@ -362,11 +362,19 @@ function StepPlan({ rankedWithTasks, focusToday, onDone, onClose }) {
   const generate = async (detailed) => {
     setLoading(true);
     const prompt = detailed
-      ? `Create a detailed, step-by-step daily plan for an ADHD user. Break tasks into small manageable steps. Keep it encouraging and clear. 
+      ? `Create a detailed, step-by-step daily plan. Break tasks into small manageable steps. Keep it encouraging and clear. 
 Focus: "${focusToday || "not set"}"
 Priorities and tasks: ${JSON.stringify(rankedWithTasks.map((p, i) => ({ rank: i + 1, title: p.title, level: p.priority_level, tasks: p.selected_tasks.map(t => t.text) })))}
+
+Format the plan using:
+- ### headers for each priority section
+- **bold** for key actions and important notes
+- ✓ checkboxes for individual tasks (use: ✓ task text)
+- Bullet points or numbered lists for steps
+- Clear spacing between sections
+
 Return a structured plan with sections per priority, sub-steps, and brief motivational notes.`
-      : `Compile an organized summary for an ADHD user of what they need to accomplish today.
+      : `Compile an organized summary of what needs to be accomplished today.
 Priorities and tasks: ${JSON.stringify(rankedWithTasks.map((p, i) => ({ rank: i + 1, title: p.title, level: p.priority_level, tasks: p.selected_tasks.map(t => t.text) })))}
 Keep it brief, clear and actionable.`;
 

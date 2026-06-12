@@ -38,10 +38,10 @@ function StruggleDialog({ label, onResolve, onClose }) {
     if (!challenges.length) return;
     setLoading(true);
     const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `An ADHD user is struggling with: "${label}"
-Their challenges: ${challenges.join(", ")}
+    prompt: `A user is struggling with: "${label}"
+    Their challenges: ${challenges.join(", ")}
 
-Give 3-4 specific, practical, encouraging tips to help them get unstuck. Keep each tip to 1-2 sentences. Be warm and supportive — not clinical.`
+    Give 3-4 specific, practical, encouraging tips to help them get unstuck. Keep each tip to 1-2 sentences. Be warm and supportive — not clinical.`
     });
     setTips(result);
     setLoading(false);
@@ -184,7 +184,7 @@ export default function DailyPlan({ plan, onUpdate, onDismiss }) {
           <div className="px-5 py-3 border-b border-border">
             <button
               onClick={() => setShowAiPlan(v => !v)}
-              className="flex items-center gap-1.5 text-xs text-primary hover:underline"
+              className="flex items-center gap-1.5 text-xs text-primary hover:underline font-medium"
             >
               <Sparkles className="w-3.5 h-3.5" />
               {plan.detailed ? "View detailed plan" : "View compiled summary"}
@@ -193,8 +193,23 @@ export default function DailyPlan({ plan, onUpdate, onDismiss }) {
             <AnimatePresence>
               {showAiPlan && (
                 <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden">
-                  <div className="mt-2 rounded-lg bg-muted/40 p-3 text-xs text-foreground whitespace-pre-wrap leading-relaxed">
-                    {plan.ai_plan}
+                  <div className="mt-3 rounded-xl bg-gradient-to-br from-primary/5 to-accent/5 border border-primary/10 p-4">
+                    <div className="prose prose-sm max-w-none">
+                      <div 
+                        className="text-sm text-foreground leading-relaxed"
+                        dangerouslySetInnerHTML={{ 
+                          __html: plan.ai_plan
+                            .replace(/^### (.*$)/gim, '<h3 class="text-base font-bold text-primary mt-4 mb-2 first:mt-0">$1</h3>')
+                            .replace(/^## (.*$)/gim, '<h2 class="text-lg font-bold text-foreground mt-5 mb-3 first:mt-0">$1</h2>')
+                            .replace(/^# (.*$)/gim, '<h1 class="text-xl font-bold text-foreground mt-6 mb-4 first:mt-0">$1</h1>')
+                            .replace(/^\*\*(.*)\*\*/gim, '<strong class="font-semibold text-foreground">$1</strong>')
+                            .replace(/^- (.*$)/gim, '<li class="ml-4 list-disc text-sm text-foreground mb-1.5">$1</li>')
+                            .replace(/^\d+\. (.*$)/gim, '<li class="ml-4 list-decimal text-sm text-foreground mb-1.5">$1</li>')
+                            .replace(/^\s*[\[\]] (.*$)/gim, '<div class="flex items-center gap-2 ml-4 mb-1.5"><span class="w-4 h-4 rounded border border-primary/30 flex items-center justify-center text-[10px] text-primary">✓</span><span class="text-sm text-foreground">$1</span></div>')
+                            .replace(/\n\n/g, '<br/><br/>')
+                        }} 
+                      />
+                    </div>
                   </div>
                 </motion.div>
               )}
