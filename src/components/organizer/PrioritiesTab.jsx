@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Trash2, ChevronDown, ChevronUp, Flag, Calendar, CheckCircle2, Circle, LayoutGrid, List, Pencil, Check, X } from "lucide-react";
+import { Plus, Trash2, ChevronDown, ChevronUp, Flag, Calendar, CheckCircle2, Circle, LayoutGrid, List, Pencil, Check, X, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, differenceInDays, isPast, isValid, parseISO } from "date-fns";
+import PriorityCoach from "./PriorityCoach";
 
 function nanoid() { return Math.random().toString(36).slice(2, 10); }
 
@@ -219,9 +220,10 @@ function PriorityItem({ priority, onUpdate, onDelete, viewMode }) {
   );
 }
 
-export default function PrioritiesTab({ priorities = [], onChange }) {
+export default function PrioritiesTab({ priorities = [], onChange, focusToday, onPlanReady }) {
   const [adding, setAdding] = useState(false);
   const [viewMode, setViewMode] = useState("list");
+  const [coaching, setCoaching] = useState(false);
 
   const add = (p) => { onChange([p, ...priorities]); setAdding(false); };
   const update = (updated) => onChange(priorities.map(p => p.id === updated.id ? updated : p));
@@ -260,6 +262,27 @@ export default function PrioritiesTab({ priorities = [], onChange }) {
       <div className={viewMode === "card" ? "grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-72 overflow-y-auto pr-1" : "space-y-1.5 max-h-72 overflow-y-auto pr-1"}>
         {sorted.map(p => <PriorityItem key={p.id} priority={p} onUpdate={update} onDelete={remove} viewMode={viewMode} />)}
       </div>
+
+      <AnimatePresence>
+        {coaching && (
+          <PriorityCoach
+            priorities={priorities}
+            focusToday={focusToday}
+            onPlanReady={onPlanReady}
+            onClose={() => setCoaching(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {!coaching && priorities.length > 0 && (
+        <button
+          onClick={() => setCoaching(true)}
+          className="w-full mt-1 rounded-xl border border-dashed border-primary/40 bg-primary/5 hover:bg-primary/10 transition-colors py-3 px-4 flex items-center justify-center gap-2 text-sm text-primary font-medium"
+        >
+          <Sparkles className="w-4 h-4" />
+          Can I help you with your priorities today?
+        </button>
+      )}
     </div>
   );
 }

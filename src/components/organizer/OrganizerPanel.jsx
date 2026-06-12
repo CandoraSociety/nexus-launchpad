@@ -14,6 +14,7 @@ import PrioritiesTab from "./PrioritiesTab";
 import TickerBar from "./TickerBar";
 import ContextPopup from "./ContextPopup";
 import PriorityDeadlineNotifier from "./PriorityDeadlineNotifier";
+import DailyPlan from "./DailyPlan";
 
 export default function OrganizerPanel({ user }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -118,7 +119,12 @@ export default function OrganizerPanel({ user }) {
                 <NotesTab notes={notes} onChange={(n) => save({ notes: n })} />
               </TabsContent>
               <TabsContent value="priorities">
-                <PrioritiesTab priorities={priorities} onChange={(p) => save({ priorities: p })} />
+                <PrioritiesTab
+                  priorities={priorities}
+                  onChange={(p) => save({ priorities: p })}
+                  focusToday={record?.focus_today}
+                  onPlanReady={(plan) => save({ daily_plan: plan })}
+                />
               </TabsContent>
               <TabsContent value="tasks">
                 <TasksTab tasks={tasks} onChange={(t) => save({ tasks: t })} priorities={priorities} onPrioritiesChange={(p) => save({ priorities: p })} />
@@ -141,6 +147,13 @@ export default function OrganizerPanel({ user }) {
         )}
       </motion.div>
 
+      {record?.daily_plan && (
+        <DailyPlan
+          plan={record.daily_plan}
+          onUpdate={(updatedPlan) => save({ daily_plan: updatedPlan })}
+          onDismiss={() => save({ daily_plan: null })}
+        />
+      )}
       <ContextPopup notes={notes} priorities={priorities} />
       <PriorityDeadlineNotifier priorities={priorities} />
     </>

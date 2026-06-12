@@ -54,7 +54,7 @@
           }
         }
       },
-      "description": "Recurring reminders / things they keep forgetting"
+      "description": "Recurring reminders"
     },
     "thoughts": {
       "type": "array",
@@ -141,6 +141,33 @@
         }
       },
       "description": "Priority catalogue with due dates and sub-tasks"
+    },
+    "daily_plan": {
+      "type": "object",
+      "description": "The current AI-generated daily plan",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "focus": {
+          "type": "string"
+        },
+        "detailed": {
+          "type": "boolean"
+        },
+        "ai_plan": {
+          "type": "string"
+        },
+        "priorities": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
     }
   },
   "required": [
