@@ -307,11 +307,11 @@ export default function DailyPlan({ plan, onUpdate, onDismiss }) {
                     </div>
                   </div>
 
-                  {/* Visual Workflow Map */}
+                  {/* Visual Workflow Map - Overall Priority Flow */}
                   <div className="mb-5">
                     <h4 className="text-xs font-bold text-foreground mb-3 flex items-center gap-2">
                       <Map className="w-3.5 h-3.5 text-violet-500" />
-                      Your Workflow Map
+                      Priority Flow
                     </h4>
                     <div className="flex items-center gap-2 overflow-x-auto pb-2">
                       {plan.priorities.map((p, idx) => (
@@ -330,6 +330,50 @@ export default function DailyPlan({ plan, onUpdate, onDismiss }) {
                             <ArrowRight className="w-4 h-4 text-muted-foreground shrink-0" />
                           )}
                         </React.Fragment>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Individual Priority Workflow Maps */}
+                  <div className="mb-4">
+                    <h4 className="text-xs font-bold text-foreground mb-3 flex items-center gap-2">
+                      <Target className="w-3.5 h-3.5 text-purple-500" />
+                      Task Workflows
+                    </h4>
+                    <div className="space-y-3">
+                      {plan.priorities.map((p, idx) => (
+                        <div key={p.id} className={`rounded-xl border ${p.done ? "border-emerald-200 bg-emerald-50/50 dark:border-emerald-800 dark:bg-emerald-950/20" : "border-border bg-card"} p-3`}>
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="w-5 h-5 rounded-md bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold">
+                              {idx + 1}
+                            </div>
+                            <span className="text-xs font-semibold text-foreground">{p.title}</span>
+                            <span className="text-xs text-muted-foreground ml-auto">{p.tasks.filter(t => t.done).length}/{p.tasks.length} complete</span>
+                          </div>
+                          {p.tasks.length > 0 ? (
+                            <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+                              {p.tasks.map((t, tIdx) => (
+                                <React.Fragment key={t.id}>
+                                  <div className={`shrink-0 rounded-lg border px-2.5 py-1.5 text-xs ${t.done ? "border-emerald-300 bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-950/30" : "border-violet-200 bg-white dark:border-violet-700 dark:bg-slate-800"}`}>
+                                    <div className="flex items-center gap-1.5">
+                                      {t.done ? (
+                                        <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                                      ) : (
+                                        <Circle className="w-3 h-3 text-muted-foreground" />
+                                      )}
+                                      <span className="font-medium text-foreground line-clamp-1 max-w-[120px]">{t.text}</span>
+                                    </div>
+                                  </div>
+                                  {tIdx < p.tasks.length - 1 && (
+                                    <ArrowRight className="w-3 h-3 text-muted-foreground shrink-0" />
+                                  )}
+                                </React.Fragment>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-xs text-muted-foreground italic">No tasks defined</p>
+                          )}
+                        </div>
                       ))}
                     </div>
                   </div>
