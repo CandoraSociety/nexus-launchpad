@@ -181,19 +181,35 @@ export default function DailyPlan({ plan, onUpdate, onDismiss }) {
 
         {/* AI Plan */}
         {plan.ai_plan && (
-          <div className="px-5 py-3 border-b border-border">
+          <div className="border-b border-border">
             <button
               onClick={() => setShowAiPlan(v => !v)}
-              className="flex items-center gap-1.5 text-xs text-primary hover:underline"
+              className="w-full flex items-center justify-between px-5 py-3 bg-gradient-to-r from-primary/5 to-accent/5 hover:from-primary/10 hover:to-accent/10 transition-colors"
             >
-              <Sparkles className="w-3.5 h-3.5" />
-              {plan.detailed ? "View detailed plan" : "View summary"}
-              {showAiPlan ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center">
+                  <Sparkles className="w-3.5 h-3.5 text-primary" />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-semibold text-foreground">{plan.detailed ? "Detailed Plan" : "Plan Summary"}</p>
+                  <p className="text-xs text-muted-foreground">AI-generated workflow with time estimates</p>
+                </div>
+              </div>
+              {showAiPlan ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
             </button>
             {showAiPlan && (
-              <div className="mt-3 rounded-lg bg-muted/40 p-4 max-h-96 overflow-y-auto">
-                <div className="text-xs text-foreground whitespace-pre-wrap leading-relaxed">{plan.ai_plan}</div>
-              </div>
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="px-5 pb-4"
+              >
+                <div className="rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 border border-border p-5 max-h-[500px] overflow-y-auto shadow-inner">
+                  <div className="text-sm text-foreground whitespace-pre-wrap leading-relaxed space-y-3">
+                    {plan.ai_plan}
+                  </div>
+                </div>
+              </motion.div>
             )}
           </div>
         )}
