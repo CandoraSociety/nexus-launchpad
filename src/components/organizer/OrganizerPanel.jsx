@@ -7,13 +7,13 @@ import { Brain, CheckSquare, Target, Bell, FileText, Flag, ChevronDown, ChevronU
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import TasksTab from "./TasksTab";
-import FocusTab from "./FocusTab.jsx";
+import FocusTab from "./FocusTab";
 import RemindersTab from "./RemindersTab";
-import NotesTab from "./NotesTab.jsx";
-import PrioritiesTab from "./PrioritiesTab.jsx";
-import TickerBar from "./TickerBar.jsx";
-import ContextPopup from "./ContextPopup.jsx";
-import PriorityDeadlineNotifier from "./PriorityDeadlineNotifier.jsx";
+import NotesTab from "./NotesTab";
+import PrioritiesTab from "./PrioritiesTab";
+import TickerBar from "./TickerBar";
+import ContextPopup from "./ContextPopup";
+import PriorityDeadlineNotifier from "./PriorityDeadlineNotifier";
 
 export default function OrganizerPanel({ user }) {
   const [collapsed, setCollapsed] = useState(false);
